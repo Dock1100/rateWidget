@@ -1,0 +1,1 @@
+Simple rate widget from video http://screencast.com/t/HHCvHwbU
