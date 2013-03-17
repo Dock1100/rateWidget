@@ -14,13 +14,14 @@ function removeClass(el, name)
    }
 }
 
-function Rate(element){
+function Rate(){
+	with (this) {
 	var stars = null;
 	var message = null;
 	var votes = null;
 	var valueSum = 0;
 	var votesCount = 0;
-	init = function(element){
+	this.init = function(element){
 		var str = "";
 		str += '<ul class="rate_stars">';
 			str += '<li data="1">&#9733;</li>';
@@ -66,7 +67,7 @@ function Rate(element){
 								//else redraw hovered rate stars;
 								//set value only for not full redraw
 		v = valueSum/votesCount;
-		if (type!="all")
+		if (type=="stars")
 		{
 			for (var i=0;i<stars.childElementCount;i++){
 				removeClass(stars.childNodes[i],'rate_checked');
@@ -74,6 +75,11 @@ function Rate(element){
 				if (i<value) addClass(stars.childNodes[i],'rate_hover');
 				else if (i<Math.round(v)) addClass(stars.childNodes[i],'rate_checked');
 			};
+		} else if (type=="content") {
+			if (votesCount>0) {
+				message.innerHTML = getMessage(v);
+				votes.innerHTML = getVotes(votesCount);
+			}
 		}
 		else 
 		{
@@ -81,6 +87,8 @@ function Rate(element){
 				removeClass(stars.childNodes[i],'rate_checked');
 				removeClass(stars.childNodes[i],'rate_hover');
 				if (i<Math.round(v)) addClass(stars.childNodes[i],'rate_checked');
+				if (i<value) addClass(stars.childNodes[i],'rate_hover');
+
 			};
 			if (votesCount>0) {
 				message.innerHTML = getMessage(v);
@@ -92,12 +100,11 @@ function Rate(element){
 	addVoice = function(value){
 		valueSum += parseInt(value);
 		votesCount += 1;
-		draw(0,"all");
 	}
 
 	rateMouseMove = function(e){
 		if (checkIsRate(e.target))
-			draw(getStarNumber(e.target));
+			draw(getStarNumber(e.target),"stars");
 	}
 
 	rateMouseOut = function(e){
@@ -105,21 +112,29 @@ function Rate(element){
 	}
 
 	rateClick = function(e){
-		if (checkIsRate(e.target)) addVoice(getStarNumber(e.target));
+		if (checkIsRate(e.target)) {
+			addVoice(getStarNumber(e.target));
+			draw(getStarNumber(e.target),"all");
+		}
 	}
 
-	init(element);
+	//init(element);
+}
 };
 
 window.onload = function(e){
 	var body = document.getElementsByTagName("body")[0];
 	if (body) {
 		var nodes = body.getElementsByTagName("div");
+		var rates = new Array; 
+		var rateObj = new Array;
 		for (var i=0;i<body.childElementCount;i++)
+			if (nodes[i].getAttribute("name") == "rate") rates.push(nodes[i]);
+		for (var i=0;i<rates.length;i++)		
 		{
-			if (nodes[i].getAttribute("name") == "rate") {
-				var rate =new Rate(nodes[i]);
-				}
+			rateObj.push(new Rate);
+			console.log(rateObj[i]);
+			rateObj[i].init(rates[i]);
 		}
 	}
 }
